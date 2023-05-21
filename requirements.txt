@@ -1,0 +1,4 @@
+dash==2.9.3
+pandas==2.0.1
+dash-extensions==1.0.0
+dash-mantine-components==0.12.1
