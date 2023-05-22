@@ -134,9 +134,9 @@ def create_gantt_chart():
         hovertemplate=(
             'Состояние - <b>%{customdata[0]}</b><br>' +
             'Причина - <b>%{customdata[1]}</b><br>' +
-            'Начало - <b>%{customdata[2]}</b><br>' +  # поменять отображение времени
+            'Начало - <b>%{customdata[2]|%H:%M:%S (%d %b %Y)}</b><br>' +
             'Длительность - <b>%{customdata[3]:,.2f}</b> мин.<br><br>' +
-            'Сменный день - <b>%{customdata[4]}</b><br>' +
+            'Сменный день - <b>%{customdata[4]|%d %b %Y}</b><br>' +
             'Смена - <b>%{customdata[5]}</b><br>' +
             'Оператор - <b>%{customdata[6]}</b>'
         ),
