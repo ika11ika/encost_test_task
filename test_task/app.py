@@ -1,4 +1,5 @@
 import dash_mantine_components as dmc
+import datetime as dt
 import sqlite3
 from dataclasses import dataclass
 
@@ -56,6 +57,8 @@ class MainDataFrame:
 
 def show_general_info():
     df = MainDataFrame()
+    state_begin = dt.datetime.fromisoformat(df.state_begin)
+    state_end = dt.datetime.fromisoformat(df.state_end)
 
     return dmc.Col([
         dmc.Card([
@@ -69,11 +72,11 @@ def show_general_info():
                 style={"font-weight": "bold"}
             ),
             Div(
-                f'Начало периода: {df.state_begin}',
+                f'Начало периода: {state_begin:%H:%M:%S (%d %b %Y)}',
                 style={"font-weight": "bold"}
             ),
             Div(
-                f'Конец периода: {df.state_end}',
+                f'Конец периода: {state_end:%H:%M:%S (%d %b %Y)}',
                 style={"font-weight": "bold"}
             ),
             dmc.MultiSelect(
