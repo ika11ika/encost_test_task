@@ -1,6 +1,7 @@
 import dash_mantine_components as dmc
 import datetime as dt
 import sqlite3
+import plotly.express as px
 from dataclasses import dataclass
 
 from dash import Input, Output, State
@@ -10,7 +11,6 @@ from dash.html import Div, H1
 from dash_extensions.enrich import (DashProxy, MultiplexerTransform,
                                     ServersideOutputTransform)
 from pandas import read_sql
-from plotly.express import pie, timeline
 
 CARD_STYLE = dict(
     withBorder=True, shadow='sm', radius='md', style={'height': '400px'}
@@ -54,6 +54,13 @@ class MainDataFrame:
     def get_bar_df(self):
         return self.__df_main
 
+    def get_color_map(self):
+        color_map = dict(zip(
+            self.get_distinct_states(),
+            px.colors.qualitative.Dark2,
+        ))
+        return color_map
+
 
 def show_general_info():
     df = MainDataFrame()
@@ -83,7 +90,7 @@ def show_general_info():
                 placeholder='Выберите состояние',
                 id='selected_filter',
                 clearable=True,
-                style={"width": 500, "marginBottom": 10},
+                style={"marginBottom": 10},
                 data=df.get_distinct_states()
             ),
             dmc.Button('Фильтровать', id='filter_button'),
@@ -94,18 +101,20 @@ def show_general_info():
 
 def show_pie_chart():
     df_pie = MainDataFrame().get_pie_df()
+    color_map = MainDataFrame().get_color_map()
 
     return dmc.Col([
             dmc.Card([
                     Div(
                         Graph(
-                            figure=pie(
+                            figure=px.pie(
                                 df_pie,
                                 values='sum(duration_min)',
                                 names='state',
                                 hole=0.2,
                                 height=400,
-                                template='simple_white',
+                                color='state',
+                                color_discrete_map=color_map,
                             )
                         )
                     )
@@ -117,20 +126,20 @@ def show_pie_chart():
 
 def create_gantt_chart():
     df_bar = MainDataFrame().get_bar_df()
-    conn.close()
+    color_map = MainDataFrame().get_color_map()
     custom_fields = [
         'state', 'reason', 'state_begin', 'duration_min',
         'shift_day', 'shift_name', 'operator',
     ]
 
-    figure = timeline(
+    figure = px.timeline(
         df_bar,
         x_start='state_begin',
         x_end='state_end',
         y='endpoint_name',
         color='state',
+        color_discrete_map=color_map,
         custom_data=[*custom_fields],
-        template='simple_white',
         title='График состояний',
         height=300
     ).update_traces(
@@ -197,7 +206,7 @@ def update_card3(value, click):
     
     figure = create_gantt_chart()
     if value:
-        for _, dat in enumerate(figure.data):
+        for dat in figure.data:
             dat['marker']['opacity'] = 1 if dat['name'] in value else 0.3
     return figure
 
