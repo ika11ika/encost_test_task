@@ -40,7 +40,7 @@ class MainDataFrame:
     state_begin: str = (
         __df_main.sort_values(by="state_begin").state_begin.iloc[0]
     )
-    state_end: str =__df_main.sort_values(by="state_end").state_end.iloc[-1]
+    state_end: str = __df_main.sort_values(by="state_end").state_end.iloc[-1]
     shift_day: str = __df_main['shift_day'].iloc[0]
     endpoint_name: str = __df_main['endpoint_name'].iloc[0]
     client_name: str = __df_main['client_name'].iloc[0]
@@ -203,7 +203,7 @@ app.layout = get_layout()
 def update_card3(value, click):
     if click is None:
         raise PreventUpdate
-    
+
     figure = create_gantt_chart()
     if value:
         for dat in figure.data:
