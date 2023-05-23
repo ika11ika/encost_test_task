@@ -31,7 +31,9 @@ conn = sqlite3.connect('testDB.db', check_same_thread=False)
 @dataclass
 class MainDataFrame:
     __df_main = read_sql('select * from sources', conn)
-    __df_states = read_sql('select distinct state from sources', conn)
+    __df_states_info = read_sql(
+        'select state, color from sources group by state', conn
+    )
     __df_pie = read_sql(
         'select state, sum(duration_min) from sources group by state', conn
     )
@@ -46,7 +48,10 @@ class MainDataFrame:
     client_name: str = __df_main['client_name'].iloc[0]
 
     def get_distinct_states(self):
-        return self.__df_states['state'].tolist()
+        return self.__df_states_info['state'].tolist()
+
+    def get_states_colors(self):
+        return self.__df_states_info['color'].tolist()
 
     def get_pie_df(self):
         return self.__df_pie
@@ -57,7 +62,7 @@ class MainDataFrame:
     def get_color_map(self):
         color_map = dict(zip(
             self.get_distinct_states(),
-            px.colors.qualitative.Dark2,
+            self.get_states_colors(),
         ))
         return color_map
 
