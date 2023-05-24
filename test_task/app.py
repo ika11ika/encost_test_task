@@ -31,11 +31,11 @@ conn = sqlite3.connect('testDB.db', check_same_thread=False)
 @dataclass
 class MainDataFrame:
     __df_main = read_sql('select * from sources', conn)
-    __df_states_info = read_sql(
-        'select state, color from sources group by state', conn
+    __df_reasons_info = read_sql(
+        'select reason, color from sources group by reason', conn
     )
     __df_pie = read_sql(
-        'select state, sum(duration_min) from sources group by state', conn
+        'select reason, sum(duration_min) from sources group by reason', conn
     )
     conn.close()
 
@@ -47,11 +47,11 @@ class MainDataFrame:
     endpoint_name: str = __df_main['endpoint_name'].iloc[0]
     client_name: str = __df_main['client_name'].iloc[0]
 
-    def get_distinct_states(self):
-        return self.__df_states_info['state'].tolist()
+    def get_distinct_reasons(self):
+        return self.__df_reasons_info['reason'].tolist()
 
     def get_states_colors(self):
-        return self.__df_states_info['color'].tolist()
+        return self.__df_reasons_info['color'].tolist()
 
     def get_pie_df(self):
         return self.__df_pie
@@ -61,7 +61,7 @@ class MainDataFrame:
 
     def get_color_map(self):
         color_map = dict(zip(
-            self.get_distinct_states(),
+            self.get_distinct_reasons(),
             self.get_states_colors(),
         ))
         return color_map
@@ -96,7 +96,7 @@ def show_general_info():
                 id='selected_filter',
                 clearable=True,
                 style={"marginBottom": 10},
-                data=df.get_distinct_states()
+                data=df.get_distinct_reasons()
             ),
             dmc.Button('Фильтровать', id='filter_button'),
             ], **CARD_STYLE)
@@ -115,13 +115,12 @@ def show_pie_chart():
                             figure=px.pie(
                                 df_pie,
                                 values='sum(duration_min)',
-                                names='state',
+                                names='reason',
                                 hole=0.2,
-                                height=400,
-                                color='state',
+                                color='reason',
                                 color_discrete_map=color_map,
-                            )
-                        )
+                            ).update_layout(margin=dict(t=0, b=180))
+                        ),
                     )
                 ], **CARD_STYLE
             )
@@ -142,7 +141,7 @@ def create_gantt_chart():
         x_start='state_begin',
         x_end='state_end',
         y='endpoint_name',
-        color='state',
+        color='reason',
         color_discrete_map=color_map,
         custom_data=[*custom_fields],
         title='График состояний',
